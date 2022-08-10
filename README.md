@@ -44,7 +44,7 @@ LovinJoy给您开通产品服务后，会提供一个超级管理员账号，登
  
 - App Id：项目Id，即上一步申请到的 APP_ID，必须填
 - Channel：渠道名称，打多渠道包时需要用到，如gp、app_store，默认为“”，可不填
-- Is Debug：是否打开调试，调试模式下将打印log, 默认为false
+- Is Debug：是否打开调试，调试模式下将打印log, 默认为false，上线前请确认关闭
 - Log Level：log 的级别，默认为 LogUtils.V，仅在 isDebug = true 有效
 	
 

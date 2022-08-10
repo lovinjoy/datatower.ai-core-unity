@@ -80,59 +80,83 @@ SDK  内置了一些有关广告相关的行为事件，可供开发者在收到
 
 ```c#
  /*
- * 一次展示Admob插页广告的过程
+ * 一次展示 MAX 激励广告的过程
  */
+ 
+ 
+ MaxSdkCallbacks.Rewarded.OnAdDisplayedEvent += OnRewardedVideoShownEvent;
+ MaxSdkCallbacks.Rewarded.OnAdClickedEvent += OnRewardedVideoClickedEvent;
+ MaxSdkCallbacks.Rewarded.OnAdRevenuePaidEvent += OnRewardedAdRevenuePaidEvent;
+ MaxSdkCallbacks.Rewarded.OnAdHiddenEvent += OnRewardedVideoClosedEvent;
+ MaxSdkCallbacks.Rewarded.OnAdDisplayFailedEvent += OnRewardedVideoFailedToPlayEvent;
+ MaxSdkCallbacks.Rewarded.OnAdReceivedRewardEvent += OnRewardedVideoReceivedRewardEvent;
+ 
  
 //广告位，比如这页面是主页
 string location = "main"
  
-//Admob 广告单元
-string adUnit = "ca-app-pub-3940256099942544/1033173712"
+//MAX 广告单元
+string maxAdUnit = "3940256099942544/1033173712"
  
 //整个过程的行为系列标识
 string seq = ROIQueryAdReport.GenerateUUID()
  
-//1.Admob 开始加载广告
-AdManager.loadInterstitialAd(this, adUnit); 
+//1. 开始加载广告
+loadInterstitialAd(maxAdUnit); 
 
 //2.即将展示广告
-ROIQueryAdReport.ReportToShow(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq)
+ROIQueryAdReport.ReportToShow("", AdType.REWARDED, AdPlatform.IDLE, location, seq)
+
 //3.展示广告
-AdManager.showInterstitialAd(object: OnAdShowCallback(){
-   	override void onAdShowed(){
-        	//4. 广告展示成功
-   		ROIQueryAdReport.ReportShow(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location,seq)
-    	}
-   	override void onAdFailedToShow(adError: AdError){
-      		//5. 广告展示失败
-    		ROIQueryAdReport.ReportShowFailed(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq, adError.code, adError.msg)
-    	}
-   	override void onAdClicked(){
-        	//6. 广告被点击
-     		ROIQueryAdReport.ReportClick(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq)
-      		ROIQueryAdReport.ReportConversionByClick(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq)
-    	}
-   		
-   	override void onAdClosed(){
-        	//7. 广告关闭
-     		ROIQueryAdReport.ReportClose(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq)
-    	}
+showInterstitialAd()
+
+......
+
+//广告回调
+
+//4. 广告展示成功
+private void OnRewardedVideoShownEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
+
+    ROIQueryAdReport.ReportShow(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+}
+
+
+//5. 广告展示失败
+private void OnRewardedVideoFailedToPlayEvent(string adUnitId,MaxSdkBase.ErrorInfo error, MaxSdkBase.AdInfo adInfo){
+
+    ROIQueryAdReport.ReportShowFailed(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq, adError.code, adError.msg)
+}
+
+//6. 广告被点击
+private void OnRewardedVideoClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){     	
+
+    ROIQueryAdReport.ReportClick(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportConversionByClick(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
+}
+
+//7. 广告关闭
+private void OnRewardedVideoClosedEvent(){
+       	
+	ROIQueryAdReport.ReportClose(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+}
 	
-	
-	override void onAdRewared(){
-		//对于激励广告，会有获得激励回调
-    		 ROIQueryAdReport.ReportRewared(adUnit, AdType.REWARDED, AdPlatform.ADMOB, location, seq)
-    		 ROIQueryAdReport.ReportConversionByRewared(adUnit, AdType.REWARDED, AdPlatform.ADMOB, location, seq)
-	}
+//8.对于激励广告，会有获得激励回调
+private void OnAdReceivedRewardEvent(){
+		
+    ROIQueryAdReport.ReportRewared(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportConversionByRewared(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+}
    
-   	override void onAdRevenuePaid(AdInfo ad){
-		//8. 广告用户层级展示数据
-        	string value = ad.getValue() //广告的价值
-        	string currency = ad.getCurrency() //货币
-        	string precision = ad.getPrecision() // 精确度
-        	ROIQueryAdReport.ReportPaid(adUnit, AdType.INTERSTITIAL, AdPlatform.ADMOB, location, seq, value, currency, precision)
-      }
- })
+//9. 广告用户层级展示数据
+private void OnAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
+		
+     string value = adInfo.Revenue.ToString(); //广告的价值
+     string currency = "USD" //货币
+     string precision = adInfo.RevenuePrecision; // 精确度
+     
+     ROIQueryAdReport.ReportPaid(GetNetworkAdunit(maxAdUnit, adInfo), AdType.INTERSTITIAL, GetNetwork(adInfo), location, seq, value, currency, precision)
+ }
+
     
 
 ```
@@ -143,17 +167,50 @@ AdManager.showInterstitialAd(object: OnAdShowCallback(){
 
 ### 聚合广告平台
 
-由于聚合广告平台展示广告的时候，没有返回具体是哪个广告平台的广告，所以需要在回调中判断，如onAdShowed回调
+由于聚合广告平台展示广告的时候，没有返回具体是哪个广告平台的广告，所以需要在回调中判断，这里提供了MAX平台的判断方法，可以拷贝到项目的工具类
 
 ```c#
 //聚合广告平台一般会返回广告相关的信息 AdInfo
-override void onAdShowed(AdInfo ad){
-  	//需自行实现 getAdPlatform() 、getAdUnit()方法
-  	AdPlatform adPlatform = getAdPlatform(ad)
-  	string adUnit = getAdUnit(ad)
-        //4. 广告展示成功
-   	ROIQueryAdReport.ReportShow(adUnit, AdType.INTERSTITIAL,adPlatform,location, seq)
-      }
+
+public class AdUtils
+    {
+        private const string MAXPlatformApplovin = "AppLovin";
+        private const string MAXPlatformApplovinExchange = "APPLOVIN_EXCHANGE";
+        private const string MAXPlatformAdmob = "Google AdMob";
+        private const string MAXPlatformAdx = "Google Ad Manager";
+        private const string MAXPlatformBigo = "BigoAds";
+        private const string MAXPlatformAdmobNative = "Google AdMob Native";
+        private const string MAXPlatformAdxNative = "Google Ad Manager Native";
+	
+	
+	public static string GetNetworkAdunit(string maxAdUnit, MaxSdkBase.AdInfo adInfo)(){
+	      return GetNetwork(adInfo) == AdPlatform.APPLOVIN ? maxAdUnit : adInfo.NetworkPlacement;
+	}
+
+        public static AdPlatform GetNetwork(MaxSdkBase.AdInfo adInfo)
+        {
+            switch (adInfo.NetworkName)
+            {
+                case MAXPlatformApplovin:
+                    return AdPlatform.APPLOVIN;
+                case MAXPlatformApplovinExchange:
+                    return AdPlatform.APPLOVIN_EXCHANGE;
+                case MAXPlatformAdmob:
+                    return AdPlatform.ADMOB;
+                case MAXPlatformAdx:
+                    return AdPlatform.ADX;
+                case MAXPlatformBigo:
+                    return AdPlatform.BIGO;
+                case MAXPlatformAdmobNative:
+                    return AdPlatform.ADMOB;
+                case MAXPlatformAdxNative:
+                    return AdPlatform.ADX;
+                default:
+                    return AdPlatform.IDLE;
+            }
+        }
+    }
+
 ```
 
-其他回调类似
+

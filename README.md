@@ -117,44 +117,44 @@ showInterstitialAd()
 //4. 广告展示成功
 private void OnRewardedVideoShownEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
 
-    ROIQueryAdReport.ReportShow(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportShow(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
 }
 
 
 //5. 广告展示失败
 private void OnRewardedVideoFailedToPlayEvent(string adUnitId,MaxSdkBase.ErrorInfo error, MaxSdkBase.AdInfo adInfo){
 
-    ROIQueryAdReport.ReportShowFailed(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq, adError.code, adError.msg)
+    ROIQueryAdReport.ReportShowFailed(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq, adError.code, adError.msg)
 }
 
 //6. 广告被点击
 private void OnRewardedVideoClickedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){     	
 
-    ROIQueryAdReport.ReportClick(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
-    ROIQueryAdReport.ReportConversionByClick(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportClick(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportConversionByClick(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED,  GetNetwork(adInfo), location, seq)
 }
 
 //7. 广告关闭
-private void OnRewardedVideoClosedEvent(){
+private void OnRewardedVideoClosedEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
        	
-	ROIQueryAdReport.ReportClose(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+	ROIQueryAdReport.ReportClose(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
 }
 	
 //8.对于激励广告，会有获得激励回调
-private void OnAdReceivedRewardEvent(){
+private void OnRewardedVideoReceivedRewardEvent(string adUnitId,MaxSdkBase.Reward reward, MaxSdkBase.AdInfo adInfo){
 		
-    ROIQueryAdReport.ReportRewared(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
-    ROIQueryAdReport.ReportConversionByRewared(GetNetworkAdunit(maxAdUnit, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportRewared(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
+    ROIQueryAdReport.ReportConversionByRewared(GetNetworkAdunit(adUnitId, adInfo), AdType.REWARDED, GetNetwork(adInfo), location, seq)
 }
    
 //9. 广告用户层级展示数据
-private void OnAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
+private void OnRewardedAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
 		
      string value = adInfo.Revenue.ToString(); //广告的价值
      string currency = "USD" //货币
      string precision = adInfo.RevenuePrecision; // 精确度
      
-     ROIQueryAdReport.ReportPaid(GetNetworkAdunit(maxAdUnit, adInfo), AdType.INTERSTITIAL, GetNetwork(adInfo), location, seq, value, currency, precision)
+     ROIQueryAdReport.ReportPaid(GetNetworkAdunit(adUnitId, adInfo), AdType.INTERSTITIAL, GetNetwork(adInfo), location, seq, value, currency, precision)
  }
 
     

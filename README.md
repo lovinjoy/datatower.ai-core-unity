@@ -74,9 +74,9 @@ ROIQueryAnalytics.Track("test_track");
 
 SDK  内置了一些有关广告相关的行为事件，可供开发者在收到广告SDK回调时，通过调用相关的接口进行上报，用于分析广告相关的信息
 
-### 独立广告平台
+### 聚合广告平台
 
-插页广告的过程作为演示
+MAX激励广告的过程作为演示
 
 ```c#
  /*
@@ -165,7 +165,7 @@ private void OnAdRevenuePaidEvent(string adUnitId, MaxSdkBase.AdInfo adInfo){
 
 
 
-### 聚合广告平台
+### 聚合广告平台 Network 判断
 
 由于聚合广告平台展示广告的时候，没有返回具体是哪个广告平台的广告，所以需要在回调中判断，这里提供了MAX平台的判断方法，可以拷贝到项目的工具类
 

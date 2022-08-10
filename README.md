@@ -30,7 +30,7 @@ LovinJoy给您开通产品服务后，会提供一个超级管理员账号，登
 
 ### 集成
 
-1.下载 Unity SDK 资源包 
+1.[下载 Unity SDK 资源包](https://github.com/lovinjoy/datatower.ai-core-unity/releases)
 
 2.将上述文件通过 Assets → Import Package → Custom Package 添加到项目中
 
